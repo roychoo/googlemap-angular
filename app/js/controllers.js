@@ -1,7 +1,8 @@
 'use strict';
 
 /* Controllers */
-
+function loginController() {}
+loginController.$inject = [];
 
 function MyCtrl1() {}
 MyCtrl1.$inject = [];
