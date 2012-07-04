@@ -5,5 +5,109 @@
 
 // Demonstrate how to register services
 // In this case it is a simple value service.
-angular.module('myApp.services', []).
+/*angular.module('myApp.services', []).
   value('version', '0.1');
+*/
+angular.module('myApp.services', [], function($provide) {
+    $provide.factory('sessionService', ['$log', function($log) {
+
+         $log.log("initializing Session services...");
+         var session = {
+         userName: "<your email>",
+         password: "",
+         authenticated: false,
+         country: "Singapore"
+         };
+        $log.log("initializing Session services..." + session.authenticated.toString());
+        return {
+            session: function() {
+                $log.log("check services." + session.authenticated.toString());
+                return session;
+            },
+            logout : function () {
+                this.session.authenticated = false;
+            }
+        };
+    }]);
+
+    $provide.factory("GoogleMap", ['$rootScope', '$location', 'sessionService', function($rootScope, $location, sessionService) {
+        console.log(sessionService.session().country + "country");
+        var SJO, initPosition, initZoom, mapOptions;
+        SJO = {
+            lat: 9.993552791991132,
+            lng: -84.20888416469096
+        };
+        initPosition = SJO;
+        initZoom = 12;
+        mapOptions = {
+            rootScope: $rootScope,
+            location: $location,
+            zoom: initZoom,
+            mapType: 'm',
+            country: sessionService.session().country,
+            center: {
+                lat: initPosition.lat,
+                lng: initPosition.lng
+            }
+        };
+        return new GMap(mapOptions);
+    }]);
+
+
+}).value('version','0.1');
+
+function GMap(options){
+    var countryLoc;
+    var geocoder = new google.maps.Geocoder();
+
+    geocoder.geocode( {'address' : options.country}, function(results, status) {
+        if (status == google.maps.GeocoderStatus.OK) {
+            countryLoc = results[0].geometry.location;
+            console.log("creating the map...");
+            this.mapEl = $("#map");
+            this.map = new google.maps.Map(this.mapEl[0], {
+                zoom: options.zoom,
+                center: new google.maps.LatLng(countryLoc.lat(), countryLoc.lng()),
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            });
+
+            var request = {
+                location: new google.maps.LatLng(countryLoc.lat(), countryLoc.lng()),
+                radius: '100000',
+                query: 'attractions'
+            };
+            var service = new google.maps.places.PlacesService(map);
+            service.search(request, callback);
+        }
+    });
+
+
+
+}
+function callback(results, status) {
+    console.log("Coming in " + status.toString());
+    if (status == google.maps.places.PlacesServiceStatus.OK) {
+        console.log(results.toString());
+
+        for (var i = 0; i < results.length; i++) {
+            var place = results[i];
+
+            createMarker(results[i]);
+            console.log(results[i].icon.toString() + "result123s");
+        }
+    }
+}
+
+function createMarker(place) {
+    var placeLoc = place.geometry.location;
+
+
+    // var myLatLng = new google.maps.LatLng(test.geometry.location.lat(), test.geometry.location.lng());
+    //console.log(test["geometry"].location + "results");
+    var beachMarker = new google.maps.Marker({
+        position: placeLoc,
+        map: map,
+        icon: place.icon.toString()
+    });
+
+}
