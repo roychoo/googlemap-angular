@@ -101,13 +101,21 @@ function callback(results, status) {
 function createMarker(place) {
     var placeLoc = place.geometry.location;
 
-
-    // var myLatLng = new google.maps.LatLng(test.geometry.location.lat(), test.geometry.location.lng());
-    //console.log(test["geometry"].location + "results");
     var beachMarker = new google.maps.Marker({
         position: placeLoc,
         map: map,
         icon: place.icon.toString()
     });
+    var infoWin = new InfoWindow();
+    google.maps.event.addListener(beachMarker, 'click', function() {
+        console.log("Clicking");
+        infoWin.self.open(map, beachMarker);
+    });
 
+}
+
+function InfoWindow() {
+    this.self = new google.maps.InfoWindow({
+        content: "<div class=\"modal-header\">\n  <a href=\"#\" class=\"delete btn\">Delete</a>\n  <a href=\"#\" class=\"undelete btn\" style=\"display: none\">UnDelete</a>\n  <a href=\"#/place\" class=\"edit btn btn-primary\">Edit</a>\n  <a href=\"#/map\" id=\"place-item-move\" class=\"btn\" data-dismiss=\"modal\" >Move</a>\n  <a href=\"#/place/:id/directions\" id=\"place-item-directions\" class=\"btn\" data-dismiss=\"modal\" >Directions</a>\n  <a href=\"#/map\" class=\"btn\" data-dismiss=\"modal\" >Close</a>\n</div>\n<div class=\"modal-body\">\n  <form class=\"form-horizontal\">\n    <fieldset>\n      <div class=\"control-group\">    &nbsp;&nbsp;Marker#:&nbsp;    {{markerno}}</div>\n    </fieldset>\n  </form>\n</div>        "
+    });
 }
