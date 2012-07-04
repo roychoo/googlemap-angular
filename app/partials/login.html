@@ -1,19 +1,26 @@
 
 <div id=form_container>
     <div id="login_form">
-        <form action="">
-            <h1>Login Form</h1>
-            <div>
-                <input type="text" placeholder="Username" required="" id="username" />
-            </div>
-            <div>
-                <input type="password" placeholder="Password" required="" id="password" />
-            </div>
-            <div>
-                <input type="submit" value="Log in" />
-                <a href="#">Lost your password?</a>
-                <a href="#">Register</a>
-            </div>
+        <form ng:submit="authenticateUser(user);">
+            <fieldset>
+                <div>
+                    <input type="text" placeholder="Country" required="" id="country" ng:model="user.country"/>
+                </div>
+                <div>
+                    <input type="text" placeholder="Username" required="" id="userName" ng:model="user.userName" />
+                </div>
+                <div>
+                    <input type="password" placeholder="Password" required="" id="password" ng:model="user.password"/>
+                </div>
+                <div>
+                    <input type="submit" />
+                    <a href="#">Lost your password?</a>
+                    <a href="#">Register</a>
+                </div>
+                <div>
+                    <span ng-show="invalidUserOrPwd">Username or password is not correct.</span>
+                </div>
+            </fieldset>
         </form>
 
     </div>
