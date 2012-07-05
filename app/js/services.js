@@ -8,10 +8,9 @@
 /*angular.module('myApp.services', []).
   value('version', '0.1');
 */
-angular.module('myApp.services', [], function($provide) {
-    $provide.factory('sessionService', ['$log', function($log) {
-
-         $log.log("initializing Session services...");
+angular.module('myApp.services', [], function ($provide) {
+    $provide.factory('sessionService', ['$log', function ($log) {
+        $log.log("initializing Session services...");
          var session = {
          userName: "<your email>",
          password: "",
@@ -59,7 +58,7 @@ angular.module('myApp.services', [], function($provide) {
 function GMap(options){
     var countryLoc;
     var geocoder = new google.maps.Geocoder();
-
+    console.log(this);
     geocoder.geocode( {'address' : options.country}, function(results, status) {
         if (status == google.maps.GeocoderStatus.OK) {
             countryLoc = results[0].geometry.location;
@@ -75,7 +74,7 @@ function GMap(options){
                 location: new google.maps.LatLng(countryLoc.lat(), countryLoc.lng()),
                 radius: '100000',
                 query: 'attractions'
-            };
+            }
             var service = new google.maps.places.PlacesService(map);
             service.search(request, callback);
         }
