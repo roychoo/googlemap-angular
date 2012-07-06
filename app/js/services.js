@@ -12,24 +12,51 @@ angular.module('myApp.services', [], function ($provide) {
     $provide.factory('sessionService', ['$log', function ($log) {
         $log.log("initializing Session services...");
          var session = {
-         userName: "<your email>",
+         userName: "",
          password: "",
          authenticated: false,
-         country: "Singapore"
+         country: "Singapore",
+         places: []
          };
+        //var sessionObj =  JSON.parse(session);
+       var position = {"lat" : "1", "lng" : "1"};
+
+        session.places.push(position);
+        console.log(JSON.stringify(session));
+        //console.log("sessionObj " + sessionObj.country);
+        var user = {email: "srirangan@gmail.com", password: "iLoveMongo", sex: "male"};
         $log.log("initializing Session services..." + session.authenticated.toString());
         return {
             session: function() {
                 $log.log("check services." + session.authenticated.toString());
                 return session;
             },
+            getPlacesCount: function() {
+              return session.places.length;
+            },
+            user: function() {
+                return user;
+            },
             logout : function () {
                 this.session.authenticated = false;
             }
         };
     }]);
-
-    $provide.factory("GoogleMap", ['$rootScope', '$location', 'sessionService', function($rootScope, $location, sessionService) {
+    $provide.factory("placeService", ['$http', '$compile', '$rootScope', '$location', 'sessionService', function($http, $compile, $rootScope, $location, sessionService) {
+        return {
+            add: function() {
+                $http.post('/add/', sessionService.user()).success(function(data) {
+                    console.log("success");
+                    //data.first_name = $("#new_contact_first_name").val();
+                   // data.last_name = $("#new_contact_last_name").val();
+                });
+            },
+            remove : function () {
+                this.session.authenticated = false;
+            }
+        };
+    }]);
+    $provide.factory("GoogleMap", ['$compile', '$rootScope', '$location', 'sessionService', function($compile, $rootScope, $location, sessionService) {
         console.log(sessionService.session().country + "country");
         var SJO, initPosition, initZoom, mapOptions;
         SJO = {
@@ -40,6 +67,7 @@ angular.module('myApp.services', [], function ($provide) {
         initZoom = 12;
         mapOptions = {
             rootScope: $rootScope,
+            compile: $compile,
             location: $location,
             zoom: initZoom,
             mapType: 'm',
@@ -58,6 +86,8 @@ angular.module('myApp.services', [], function ($provide) {
 function GMap(options){
     var countryLoc;
     var geocoder = new google.maps.Geocoder();
+    var rootScope = options.rootScope;
+    var compile = options.compile;
     console.log(this);
     geocoder.geocode( {'address' : options.country}, function(results, status) {
         if (status == google.maps.GeocoderStatus.OK) {
@@ -80,41 +110,49 @@ function GMap(options){
         }
     });
 
+    function callback(results, status) {
+        console.log("Coming in " + status.toString());
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+            console.log(results.toString());
 
+            for (var i = 0; i < results.length; i++) {
+                var place = results[i];
 
-}
-function callback(results, status) {
-    console.log("Coming in " + status.toString());
-    if (status == google.maps.places.PlacesServiceStatus.OK) {
-        console.log(results.toString());
-
-        for (var i = 0; i < results.length; i++) {
-            var place = results[i];
-
-            createMarker(results[i]);
-            console.log(results[i].icon.toString() + "result123s");
+                createMarker(results[i]);
+                console.log(results[i].icon.toString() + "result123s");
+            }
         }
     }
-}
 
-function createMarker(place) {
-    var placeLoc = place.geometry.location;
+    function createMarker(place) {
+        var placeLoc = place.geometry.location;
 
-    var beachMarker = new google.maps.Marker({
-        position: placeLoc,
-        map: map,
-        icon: place.icon.toString()
-    });
-    var infoWin = new InfoWindow();
-    google.maps.event.addListener(beachMarker, 'click', function() {
-        console.log("Clicking");
-        infoWin.self.open(map, beachMarker);
-    });
+        var beachMarker = new google.maps.Marker({
+            position: placeLoc,
+            map: map,
+            icon: place.icon.toString()
+        });
+        var infoWin = new google.maps.InfoWindow();
+        google.maps.event.addListener(beachMarker, 'click', function() {
+            console.log("Clicking");
+            infoWin.setContent("<div id='gInfo' ng-controller='markerCtrl'><button ng-click=add(" +beachMarker.position.lat()+","+beachMarker.position.lng()+")>add</button></div>");
+            infoWin.open(map, beachMarker);
 
-}
 
-function InfoWindow() {
-    this.self = new google.maps.InfoWindow({
-        content: "<div class=\"modal-header\">\n  <a href=\"#\" class=\"delete btn\">Delete</a>\n  <a href=\"#\" class=\"undelete btn\" style=\"display: none\">UnDelete</a>\n  <a href=\"#/place\" class=\"edit btn btn-primary\">Edit</a>\n  <a href=\"#/map\" id=\"place-item-move\" class=\"btn\" data-dismiss=\"modal\" >Move</a>\n  <a href=\"#/place/:id/directions\" id=\"place-item-directions\" class=\"btn\" data-dismiss=\"modal\" >Directions</a>\n  <a href=\"#/map\" class=\"btn\" data-dismiss=\"modal\" >Close</a>\n</div>\n<div class=\"modal-body\">\n  <form class=\"form-horizontal\">\n    <fieldset>\n      <div class=\"control-group\">    &nbsp;&nbsp;Marker#:&nbsp;    {{markerno}}</div>\n    </fieldset>\n  </form>\n</div>        "
-    });
+
+            google.maps.event.addListener(infoWin, 'domready', function() {
+                console.log("dom ready");
+                var ginfo = $('#gInfo');
+                angular.bootstrap($('#gInfo')[0], ['myApp']);
+            });
+
+        });
+
+        function InfoWindow() {
+            this.self = new google.maps.InfoWindow();
+        }
+
+    }
+
+
 }

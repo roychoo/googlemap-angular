@@ -53,6 +53,22 @@ function MapController (sessionService, $location, $log, $scope, GoogleMap) {
     $log.log('submitting country' );
    $scope.country =  sessionService.session().country;
     $scope.map = GoogleMap;
+    $scope.add = function (test) {
+        console.log("adding " + test);
+    };
+    $scope.checkPlaces = function() {
+      return sessionService.getPlacesCount() > 0;
+    };
 }
 
 MapController.$inject = ['sessionService', '$location' ,'$log', '$scope', 'GoogleMap'];
+
+function markerCtrl($scope, placeService) {
+    console.log("i am in markCtrl ");
+    $scope.add = function (lat, lng) {
+       console.log("adding " + lat + ", " + lng);
+        placeService.add();
+    };
+}
+
+markerCtrl.$inject = ['$scope', 'placeService'];

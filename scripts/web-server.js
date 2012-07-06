@@ -6,13 +6,34 @@ var sys = require('sys'),
     url = require('url'),
     events = require('events');
 
+var databaseUrl = "mydb"; // "username:password@example.com/mydb"
+var collections = ["users", "reports"];
+var db = require("mongojs").connect(databaseUrl, collections);
+
 var DEFAULT_PORT = 8000;
 
 function main(argv) {
+
+ /*   db.users.save({email: "srirangan@gmail.com", password: "iLoveMongo", sex: "male"}, function(err, saved) {
+        if( err || !saved ) console.log("User not saved");
+        else console.log("User saved");
+    });
+
+    db.users.find({sex: "male"}, function(err, users) {
+        sys.puts("in");
+        if( err || !users) sys.puts(logEntry);
+        else users.forEach( function(maleUser) {
+            sys.puts(maleUser.email);
+        } );
+    });
+    */
   new HttpServer({
     'GET': createServlet(StaticServlet),
+    'POST': createServlet(PlaceServlet),
     'HEAD': createServlet(StaticServlet)
   }).start(Number(argv[2]) || DEFAULT_PORT);
+
+
 }
 
 function escapeHtml(value) {
@@ -65,6 +86,31 @@ HttpServer.prototype.handleRequest_ = function(req, res) {
     handler.call(this, req, res);
   }
 };
+
+
+function PlaceServlet() {}
+PlaceServlet.prototype.handleRequest = function(req, res) {
+    sys.puts("inside post request");
+    if (req.method === "POST") {
+        var body = '';
+        req.on('data', function (data)
+        {
+            body += data;
+        })
+
+        req.on('end', function ()
+        {
+            sys.puts(body + "post");
+           // sys.puts(json.val1); //hello
+           // sys.puts(json.val2); //undefined
+           // sys.puts(json.val3); //undefined
+
+           // sys.puts(JSON.stringify(json));
+            //{"val1":"hello","val2[val3]":"world"}
+        });
+
+    }
+}
 
 /**
  * Handles static content.
