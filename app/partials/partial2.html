@@ -3,7 +3,9 @@
   Showing of 'interpolate' filter:
   {{ 'Current version is v%VERSION%.' | interpolate }}
 </p>
-<div id="map"></div>
-<div class="row-fluid" ng-show="checkPlaces()">
-    <div class="span4 offset8 side">hello world<br/>hello world<br/>hello world<br/>hello world<br/>hello world<br/>hello world<br/></div>
+<map id="map" zoom={{country}} center="{lat:-26.0833,lon:28.2500}" maptype="roadmap" scrollwheel="false" country="country"></map>
+<div class="row-fluid" ng-show="checkPlaces()" country={{country}}>
+    <li ng:repeat="place in places">
+        {{place.name}}
+    </li>
 </div>

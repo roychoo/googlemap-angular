@@ -9,7 +9,81 @@ var directives = angular.module('myApp.directives', []).
       elm.text(version);
     };
   }]);
+directives.directive('map', function() {
+    return {
+        restrict: 'E',
+        replace: true,
+        template: '<div></div>',
+        scope: {},
+        link: function(scope, element, attrs) {
+            element.addClass('map');
+            alert(scope.country);
+            var myOptions = {
+                zoom: 12,
+                center: new google.maps.LatLng(26.0833, 28.2500),
+                mapTypeId: google.maps.MapTypeId.ROADMAP,
+                scrollwheel: true
+            };
 
+            //zoom as attribute
+            if(attrs.zoom && parseInt(attrs.zoom)) myOptions.zoom = parseInt(attrs.zoom);
+            //center as attribute
+            if(attrs.center){
+                var center = scope.$eval(attrs.center);
+                if(parseFloat(center.lat) && parseFloat(center.lon))
+                    myOptions.center = new google.maps.LatLng(parseFloat(center.lat), parseFloat(center.lon));
+            }
+            //maptype as attribute
+            if(attrs.maptype){
+                switch(attrs.maptype.toLowerCase()){
+                    case 'hybrid':
+                        myOptions.mapTypeId = google.maps.MapTypeId.HYBRID;
+                        break;
+                    case 'roadmap':
+                        myOptions.mapTypeId = google.maps.MapTypeId.ROADMAP;
+                        break;
+                    case 'satellite':
+                        myOptions.mapTypeId = google.maps.MapTypeId.SATELLITE;
+                        break;
+                    case 'terrain':
+                        myOptions.mapTypeId = google.maps.MapTypeId.TERRAIN;
+                        break;
+                    default:
+                        myOptions.mapTypeId = google.maps.MapTypeId.ROADMAP;
+                        break;
+                }
+            }
+            if(attrs.scrollwheel){
+                switch(attrs.scrollwheel.toLowerCase()){
+                    case 'true':
+                        myOptions.scrollwheel = true;
+                        break;
+                    case 'false':
+                        myOptions.scrollwheel = false;
+                        break;
+                    default:
+                        myOptions.scrollwheel = true;
+                        break;
+                }
+            }
+
+            var map = new google.maps.Map(document.getElementById(attrs.id), myOptions);
+
+
+            google.maps.event.addListener(map, 'click', function(e) {
+                scope.$apply(function() {
+                    var myLatlng = new google.maps.LatLng(e.latLng.lat(), e.latLng.lng());
+                    var marker = new google.maps.Marker({
+                        position: myLatlng,
+                        map: map,
+                        title:"Hello World!"
+                    });
+                });
+            }); // end click listener
+
+        }
+    };
+});
 /*
 directives.directive('myApp.directives', []).
   directive('map', function() {

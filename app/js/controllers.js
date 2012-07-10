@@ -49,26 +49,21 @@ function LoginController(sessionService, $location, $log, $scope) {
 
 LoginController.$inject = ['sessionService', '$location' ,'$log', '$scope'];
 
-function MapController (sessionService, $location, $log, $scope, GoogleMap) {
+function MapController (sessionService, $location, $log, $scope) {
     $log.log('submitting country' );
-   $scope.country =  sessionService.session().country;
-    $scope.map = GoogleMap;
-    $scope.add = function (test) {
-        console.log("adding " + test);
-    };
-    $scope.checkPlaces = function() {
-      return sessionService.getPlacesCount() > 0;
-    };
+    $scope.country =  sessionService.session().country;
+    alert($scope.country);
+
 }
 
-MapController.$inject = ['sessionService', '$location' ,'$log', '$scope', 'GoogleMap'];
+MapController.$inject = ['sessionService', '$location' ,'$log', '$scope'];
 
-function markerCtrl($scope, placeService) {
+function markerCtrl($rootScope, $scope, placeService) {
     console.log("i am in markCtrl ");
     $scope.add = function (lat, lng) {
-       console.log("adding " + lat + ", " + lng);
+       console.log("adding " + $rootScope.places);
         placeService.add();
     };
 }
 
-markerCtrl.$inject = ['$scope', 'placeService'];
+markerCtrl.$inject = ['$rootScope', '$scope', 'placeService'];
